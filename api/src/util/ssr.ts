@@ -16,7 +16,7 @@ export const getSSRBody = async (sessionValue: string | undefined, inputProps?: 
 
     if (inputProps) Object.assign(props, inputProps);
 
-    const safeProps = JSON.stringify(props).replace(/<\//g, '<\\/');
+    const safeProps = JSON.stringify(props).replace(/<\//g, '<\\/').replace(/"/g, '\\"');
     index = index.replace('__ssr_props__', () => safeProps);
 
     return new Response(index, { headers: { 'Content-Type': 'text/html' } });
