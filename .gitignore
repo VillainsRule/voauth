@@ -1,0 +1,13 @@
+# modules
+node_modules
+bun.lock
+
+# protected
+api/db
+.env
+
+# builds
+dist
+
+# macos
+.DS_Store
