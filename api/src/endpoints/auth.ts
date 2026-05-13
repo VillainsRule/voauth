@@ -27,7 +27,7 @@ const auth = new Elysia({ name: 'auth' })
                 session.value = newSession;
                 session.httpOnly = true;
                 session.path = '/';
-                session.sameSite = 'strict';
+                session.sameSite = 'lax';
                 session.secure = true;
                 session.expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
 
@@ -55,7 +55,7 @@ const auth = new Elysia({ name: 'auth' })
                 session.value = newSession;
                 session.httpOnly = true;
                 session.path = '/';
-                session.sameSite = 'strict';
+                session.sameSite = 'lax';
                 session.secure = true;
                 session.expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
 
@@ -77,7 +77,7 @@ const auth = new Elysia({ name: 'auth' })
         session.value = '';
         session.httpOnly = true;
         session.path = '/';
-        session.sameSite = 'strict';
+        session.sameSite = 'lax';
         session.maxAge = 0;
         session.secure = true;
 

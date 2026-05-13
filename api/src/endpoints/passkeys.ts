@@ -162,7 +162,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
         webauthn.value = options.challenge;
         webauthn.httpOnly = true;
         webauthn.path = '/';
-        webauthn.sameSite = 'strict';
+        webauthn.sameSite = 'lax';
         webauthn.secure = true;
 
         return options;
@@ -218,13 +218,13 @@ const passkeys = new Elysia({ name: 'passkeys' })
         session.value = newSession;
         session.httpOnly = true;
         session.path = '/';
-        session.sameSite = 'strict';
+        session.sameSite = 'lax';
         session.secure = true;
 
         webauthn.value = '';
         webauthn.httpOnly = true;
         webauthn.path = '/';
-        webauthn.sameSite = 'strict';
+        webauthn.sameSite = 'lax';
         webauthn.maxAge = 0;
         webauthn.secure = true;
 
