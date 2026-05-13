@@ -22,7 +22,8 @@ export default function Apps() {
     });
 
     useEffect(() => {
-        fetchApps();
+        if (window.props.user) fetchApps();
+        else navigate('/auth/login');
     }, []);
 
     return (

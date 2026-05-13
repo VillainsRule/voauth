@@ -28,7 +28,8 @@ export default function App() {
     });
 
     useEffect(() => {
-        fetchApp();
+        if (window.props.user) fetchApp();
+        else navigate('/auth/login');
     }, []);
 
     const [copied, setCopied] = useState<string>('');

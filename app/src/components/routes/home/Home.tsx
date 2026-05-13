@@ -34,7 +34,8 @@ export default function Home() {
     });
 
     useEffect(() => {
-        fetchPasskeys();
+        if (window.props.user) fetchPasskeys();
+        else navigate('/auth/login');
     }, []);
 
     return (
