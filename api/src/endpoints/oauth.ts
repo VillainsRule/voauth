@@ -98,7 +98,7 @@ const oauth = new Elysia({ name: 'oauth' })
         if (codeInfo.clientId !== body.appId) return { error: 'code not valid for this app' };
 
         const user = userDB.getLink('sessions', codeInfo.user);
-        if (!user) return { error: 'invalid session' };
+        if (!user) return { error: 'user does not exist in database' };
 
         userDB.update(user.id, { connectedIds: Array.from(new Set([...user.connectedIds, app.id])) });
 
