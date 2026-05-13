@@ -29,6 +29,7 @@ const auth = new Elysia({ name: 'auth' })
                 session.path = '/';
                 session.sameSite = 'strict';
                 session.secure = true;
+                session.expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
 
                 return { user: { id: user.id, username: user.username }, instance: { passkeysConfigured } };
             } else {
@@ -56,6 +57,7 @@ const auth = new Elysia({ name: 'auth' })
                 session.path = '/';
                 session.sameSite = 'strict';
                 session.secure = true;
+                session.expires = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
 
                 return { user: { id: nextID, username: body.username }, instance: { passkeysConfigured } };
             }
