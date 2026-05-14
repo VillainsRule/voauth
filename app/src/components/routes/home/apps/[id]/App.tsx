@@ -37,6 +37,8 @@ export default function App() {
     const [editedURIs, setEditedURIs] = useState<string[]>(app.redirectURIs);
     const [newURI, setNewURI] = useState('');
 
+    if (!window.props.user) return <>redirecting...</>;
+
     return (
         <div className='flex items-center justify-center h-screen bg-muted/30'>
             <Card className='w-sm overflow-hidden'>

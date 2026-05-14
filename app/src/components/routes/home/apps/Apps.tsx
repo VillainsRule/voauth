@@ -26,6 +26,8 @@ export default function Apps() {
         else navigate('/auth/login');
     }, []);
 
+    if (!window.props.user) return <>redirecting...</>;
+
     return (
         <div className='flex items-center justify-center h-screen bg-muted/30'>
             <Card className='w-sm overflow-hidden'>
