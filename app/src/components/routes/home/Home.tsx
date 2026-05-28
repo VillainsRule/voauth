@@ -47,7 +47,7 @@ export default function Home() {
                     <div className='flex items-start justify-between'>
                         <div>
                             <p className='text-base font-semibold tracking-tight'>voauth</p>
-                            <p className='text-xs text-muted-foreground mt-0.5'>@{window.props.user.username}</p>
+                            <p className='text-xs text-muted-foreground mt-0.5'>@{window.props.user.username} (id: {window.props.user.id})</p>
                         </div>
 
                         <Button variant='ghost' size='sm' className='text-xs h-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
