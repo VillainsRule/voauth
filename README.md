@@ -14,7 +14,7 @@ however, if you'd like to own everything locally (for some reason), here we go..
 1. clone the repo
 2. install deps from the root project dir
 3. add an `RP_ID={voauth instance hostname}` to `api/.env`
-4. run `bun .`
+4. run `bun .` (node also supported)
 
 <br><br>
 <h5 align='center'>made with ❤️</h5>

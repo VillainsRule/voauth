@@ -6,7 +6,7 @@ import userDB from '../db/impl/UserDB';
 
 import Hasher from '../util/hasher';
 
-const passkeysConfigured = typeof Bun.env.RP_ID === 'string';
+const passkeysConfigured = typeof process.env.RP_ID === 'string';
 
 const auth = new Elysia({ name: 'auth' })
     .guard({ detail: { hide: true } })

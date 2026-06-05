@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 
 import userDB from '../db/impl/UserDB';
@@ -5,13 +6,13 @@ import userDB from '../db/impl/UserDB';
 const distDir = path.resolve(import.meta.dirname, '../../../app/dist');
 
 export const getSSRBody = async (sessionValue: string | undefined, inputProps?: object): Promise<Response> => {
-    let index = await Bun.file(path.join(distDir, 'index.html')).text();
+    let index = fs.readFileSync(path.join(distDir, 'index.html'), 'utf-8');
 
     const user = sessionValue ? userDB.getLink('sessions', sessionValue) : null;
 
     const props = {
         user: user ? { id: user.id, username: user.username } : null,
-        instance: { allowPasskeys: typeof Bun.env.RP_ID === 'string' }
+        instance: { allowPasskeys: typeof process.env.RP_ID === 'string' }
     }
 
     if (inputProps) Object.assign(props, inputProps);

@@ -18,7 +18,7 @@ import userDB from '../db/impl/UserDB';
 
 const currentRegistrations: Record<number, { name: string, value: string, expiry: number }> = {};
 
-const passkeysConfigured = typeof Bun.env.RP_ID === 'string';
+const passkeysConfigured = typeof process.env.RP_ID === 'string';
 
 const passkeys = new Elysia({ name: 'passkeys' })
     .guard({ detail: { hide: true } })
@@ -43,7 +43,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
 
         const opts = await generateRegistrationOptions({
             rpName: 'voauth',
-            rpID: Bun.env.RP_ID!,
+            rpID: process.env.RP_ID!,
             userName: user.username,
             userID: Buffer.from(user.id.toString()),
             attestationType: 'none',
@@ -84,7 +84,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
                 response: passableBody,
                 expectedChallenge: currentChallenge.value,
                 expectedOrigin: origin,
-                expectedRPID: Bun.env.RP_ID!
+                expectedRPID: process.env.RP_ID!
             });
         } catch (error) {
             console.error(error);
@@ -155,7 +155,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
         if (!passkeysConfigured) return status(404);
 
         const options = await generateAuthenticationOptions({
-            rpID: Bun.env.RP_ID!,
+            rpID: process.env.RP_ID!,
             userVerification: 'preferred'
         });
 
@@ -192,7 +192,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
                 response: passableBody,
                 expectedChallenge: webauthn.value,
                 expectedOrigin: origin,
-                expectedRPID: Bun.env.RP_ID!,
+                expectedRPID: process.env.RP_ID!,
                 credential: {
                     id: passkey.id,
                     publicKey: Buffer.from(passkey.publicKey, 'base64'),

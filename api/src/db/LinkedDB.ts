@@ -77,7 +77,7 @@ class LinkedDB<
 
     updateDB(): void {
         const stringified = JSON.stringify(this.db);
-        Bun.write(this.path, stringified);
+        fs.writeFileSync(this.path, stringified);
     }
 
     add(item: T): T {
