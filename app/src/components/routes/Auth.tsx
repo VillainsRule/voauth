@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'wouter'
 
 import { startAuthentication } from '@simplewebauthn/browser'
@@ -23,17 +23,21 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
     const [usernameInput, setUsernameInput] = useState<string>('');
     const [passwordInput, setPasswordInput] = useState<string>('');
 
+    const passwordRef = useRef<HTMLInputElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
     useEffect(() => {
         if (searchParams.get('to') && window.props.user) location.href = `${location.origin}${searchParams.get('to')}`;
         else if (window.props.user) navigate('/home');
+        else doWebAuthn(true);
     }, []);
 
-    const doWebAuthn = async () => {
+    const doWebAuthn = async (fromInitial?: boolean) => {
         const res = await api.auth.webauthn.login.options.post({});
         if (!res.data) return alert(errorFrom(res));
 
         if (!showingAll) {
-            res.data.allowCredentials = localStorage.getItem('internalTransport') ? allowCredentials.map(e => ({ ...e, transports: ['internal'] })) : allowCredentials;
+            res.data.allowCredentials = allowCredentials.map(e => ({ ...e, type: 'public-key' }));
             res.data.userVerification = 'required';
         }
 
@@ -41,17 +45,14 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
         try {
             assertionResp = await startAuthentication({ optionsJSON: res.data });
         } catch (err: any) {
-            return setStandardError(err.toString().includes('NotAllowedError') ?
-                'do it again and don\'t close the popup early :P' :
-                'failed to complete passkey authentication. try again or sign in with another method.'
-            );
+            console.log(err);
+            if (!fromInitial) setStandardError('failed to complete passkey authentication. try again or sign in with another method.');
+            return;
         }
 
         api.auth.webauthn.login.verify.post(assertionResp).then((res) => {
-            if (res.data) {
-                location.reload();
-                localStorage.setItem('resavePasskeys', '1');
-            } else setStandardError(errorFrom(res));
+            if (res.data) location.reload();
+            else setStandardError(errorFrom(res));
         });
     }
 
@@ -86,6 +87,7 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                                     required
                                     autoFocus
                                     onInput={(e) => setUsernameInput(e.currentTarget.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && passwordRef.current?.focus()}
                                 />
                             </div>
 
@@ -96,7 +98,9 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                                     type='password'
                                     value={passwordInput}
                                     required
+                                    ref={passwordRef}
                                     onInput={(e) => setPasswordInput(e.currentTarget.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && buttonRef.current?.click()}
                                 />
                             </div>
 
@@ -104,7 +108,7 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                                 <p className='text-destructive text-sm'>{standardError}</p>
                             )}
 
-                            <Button type='submit' className='w-full cursor-pointer'>Log in</Button>
+                            <Button ref={buttonRef} type='submit' className='w-full cursor-pointer'>log in</Button>
                         </form>
 
                         <div className='relative flex items-center gap-3'>
@@ -114,7 +118,7 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                         </div>
 
                         {window.props.instance.allowPasskeys && (
-                            <Button variant='outline' className='w-full cursor-pointer' onClick={doWebAuthn}>
+                            <Button variant='outline' className='w-full cursor-pointer' onClick={() => doWebAuthn()}>
                                 use a passkey
                             </Button>
                         )}
@@ -126,7 +130,7 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                 ) : (
                     <CardContent className='space-y-3'>
                         <button
-                            onClick={doWebAuthn}
+                            onClick={() => doWebAuthn()}
                             className='w-full border-2 border-dashed border-border hover:bg-muted/50 p-6 rounded-lg flex items-center justify-center transition-colors duration-150 cursor-pointer'
                         >
                             <span className='text-sm text-muted-foreground'>authenticate with your passkey</span>

@@ -30,6 +30,7 @@ export default function Home() {
         if (res.data) {
             setApps(res.data.connected);
             setPasskeys(res.data.passkeys.map((pk) => ({ ...pk, lastUsed: getRelativeTime(pk.lastUsed) })));
+            localStorage.setItem('passkeys', JSON.stringify(res.data.passkeys));
         } else shadd.setError(errorFrom(res));
     });
 

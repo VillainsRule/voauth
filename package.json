@@ -4,7 +4,7 @@
         "apidev": "cd api && bun --watch src/main.ts",
         "appdev": "cd app && bunx --bun vite build --watch",
         "build": "cd app && bunx --bun vite build",
-        "pull": "git pull && bun install && bun run build && systemctl restart voauth",
+        "pull": "git pull && bun install && bun run build && systemctl restart voauth && quik purge voauth.villainsrule.xyz",
         "cn": "mv @/components/ui/* ./app/src/components/ui/ && rm -rf ./@/"
     },
     "dependencies": {
