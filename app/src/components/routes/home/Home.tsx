@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from 'wouter/use-browser-location';
 
 import { startRegistration } from '@simplewebauthn/browser';
@@ -41,6 +41,15 @@ export default function Home() {
 
     if (!window.props.user) return <>redirecting...</>;
 
+    const newPasskeyRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (location.href.includes('newPasskey=1') && newPasskeyRef.current) {
+            history.pushState({}, '', '/home');
+            newPasskeyRef.current.click();
+        }
+    }, [newPasskeyRef]);
+
     return (
         <div className='flex items-center justify-center h-screen bg-muted/30'>
             <Card className='w-sm overflow-hidden'>
@@ -64,6 +73,7 @@ export default function Home() {
                     <div className='flex justify-between items-center mb-3'>
                         <Label className='text-xs text-muted-foreground uppercase tracking-wider'>Passkeys</Label>
                         <button
+                            ref={newPasskeyRef}
                             className='text-muted-foreground hover:text-foreground transition-colors'
                             onClick={() => shadd.prompt(
                                 'add a new passkey',
