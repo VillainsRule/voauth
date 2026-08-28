@@ -33,6 +33,10 @@ const app = new Elysia({ serve: { maxRequestBodySize: 1024 * 1024 * 0.05 } })
         return user ? Response.redirect('/home') : getSSRBody();
     }, { detail: { hide: true }, cookie: t.Object({ session: t.Optional(t.String()) }) })
     .get('/*', ({ cookie }) => getSSRBody(cookie.session?.value), { detail: { hide: true }, cookie: t.Object({ session: t.Optional(t.String()) }) })
+    .get('/favicon.ico', () => new Response(
+        fs.createReadStream(path.join(import.meta.dirname, '..', '..', 'app', 'public', 'favicon.ico')),
+        { headers: { 'cache-control': 'public, max-age=31536000, immutable, no-transform', 'content-type': 'image/x-icon' } }
+    ), { detail: { hide: true } })
     .get('/robots.txt', () => new Response('User-agent: *\nDisallow: /', { headers: { 'Content-Type': 'text/plain' } }), { detail: { hide: true } })
     .use(files)
     .use(apps)
