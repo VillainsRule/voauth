@@ -5,7 +5,7 @@ import userDB from '../db/impl/UserDB';
 
 const distDir = path.resolve(import.meta.dirname, '../../../app/dist');
 
-export const getSSRBody = async (sessionValue: string | undefined, inputProps?: object): Promise<Response> => {
+export const getSSRBody = (sessionValue?: string, inputProps?: object): Response => {
     let index = fs.readFileSync(path.join(distDir, 'index.html'), 'utf-8');
 
     const user = sessionValue ? userDB.getLink('sessions', sessionValue) : null;

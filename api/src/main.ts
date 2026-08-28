@@ -11,6 +11,8 @@ import home from './endpoints/home.js';
 import oauth from './endpoints/oauth.js';
 import passkeys from './endpoints/passkeys';
 
+import userDB from './db/impl/UserDB';
+
 import { getSSRBody } from './util/ssr.js';
 
 const distDir = path.resolve(import.meta.dirname, '../../app/dist');
@@ -26,11 +28,15 @@ for (const a of assets) files.get(`/a/${a}`, () => new Response(
 ));
 
 const app = new Elysia({ serve: { maxRequestBodySize: 1024 * 1024 * 0.05 } })
-    .get('/*', async ({ cookie }) => getSSRBody(cookie.session?.value), { detail: { hide: true }, cookie: t.Object({ session: t.Optional(t.String()) }) })
+    .get('/', ({ cookie }) => {
+        const user = cookie.session?.value ? userDB.getLink('sessions', cookie.session.value) : null;
+        return user ? Response.redirect('/home') : getSSRBody();
+    }, { detail: { hide: true }, cookie: t.Object({ session: t.Optional(t.String()) }) })
+    .get('/*', ({ cookie }) => getSSRBody(cookie.session?.value), { detail: { hide: true }, cookie: t.Object({ session: t.Optional(t.String()) }) })
     .get('/favicon.ico', ({ set }) => {
         set.headers['Cache-Control'] = 'public, max-age=31536000, immutable, no-transform';
         set.headers['Content-Type'] = 'image/x-icon';
-        return new Response(fs.createReadStream(path.join(import.meta.dirname, 'app', 'icons', '32.png')), { headers: { 'content-type': 'image/x-icon' } });
+        return new Response(fs.createReadStream(path.join(import.meta.dirname, '..', 'app', 'icons', '32.png')), { headers: { 'content-type': 'image/x-icon' } });
     }, { detail: { hide: true } })
     .get('/robots.txt', () => new Response('User-agent: *\nDisallow: /', { headers: { 'Content-Type': 'text/plain' } }), { detail: { hide: true } })
     .use(files)

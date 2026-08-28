@@ -31,12 +31,12 @@ export default function V1() {
                 <CardContent>
                     <div className='w-full bg-muted/70 py-1 px-2 rounded-sm'>
                         <div className='text-xxs text-muted-foreground'>
-                            <Link2 className='inline mb-0.5 mr-1 w-2.5 -rotate-45' />
+                            <Link2 className='inline mb-0.5 mr-1 w-2.75 -rotate-45' />
                             You'll be redirected to {window.props.oauth.redirectHost} after authorizing
                         </div>
 
                         <div className='text-xxs text-muted-foreground -mt-1'>
-                            <User className='inline mb-0.5 mr-1 w-2.5' />
+                            <User className='inline mb-0.5 mr-1 w-2.75' />
                             This app is owned by @{window.props.oauth.app.owner}
                         </div>
                     </div>

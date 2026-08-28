@@ -6,7 +6,6 @@ import { startAuthentication } from '@simplewebauthn/browser'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 
 import api, { errorFrom } from '@/lib/eden'
 
@@ -29,7 +28,7 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
     useEffect(() => {
         if (searchParams.get('to') && window.props.user) location.href = `${location.origin}${searchParams.get('to')}`;
         else if (window.props.user) navigate('/home');
-        else doWebAuthn(true);
+        else if (!showingAll) doWebAuthn(true);
     }, []);
 
     const doWebAuthn = async (fromInitial?: boolean) => {
@@ -70,45 +69,43 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
     return (
         <div className='min-h-screen flex items-center justify-center bg-muted/30'>
             <Card className='w-11/12 md:w-full max-w-sm'>
-                <CardHeader className='text-center flex flex-col items-center pb-2'>
-                    <CardTitle>voauth</CardTitle>
-                    <CardDescription>{act === 'join' ? 'join voauth to authorize with my projects!' : 'login to a voauth account'}</CardDescription>
+                <CardHeader className='text-center flex flex-col items-center gap-0 pb-2'>
+                    <CardTitle className='text-xl'>voauth</CardTitle>
+                    <CardDescription>{act === 'join' ? 'join voauth to authorize applications' : 'log in to authorize applications'}</CardDescription>
                 </CardHeader>
 
                 {showingAll || !window.props.instance.allowPasskeys ? (
                     <CardContent className='space-y-4'>
                         <form onSubmit={(e) => (e.preventDefault(), handleLogin())} className='space-y-4'>
-                            <div className='space-y-1.5'>
-                                <Label htmlFor='username'>Username</Label>
-                                <Input
-                                    id='username'
-                                    type='text'
-                                    value={usernameInput}
-                                    required
-                                    autoFocus
-                                    onInput={(e) => setUsernameInput(e.currentTarget.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && passwordRef.current?.focus()}
-                                />
-                            </div>
+                            <Input
+                                id='username'
+                                placeholder='username'
+                                type='text'
+                                value={usernameInput}
+                                required
+                                autoFocus
+                                className='space-y-1.5'
+                                onInput={(e) => setUsernameInput(e.currentTarget.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && passwordRef.current?.focus()}
+                            />
 
-                            <div className='space-y-1.5'>
-                                <Label htmlFor='password'>Password</Label>
-                                <Input
-                                    id='password'
-                                    type='password'
-                                    value={passwordInput}
-                                    required
-                                    ref={passwordRef}
-                                    onInput={(e) => setPasswordInput(e.currentTarget.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && buttonRef.current?.click()}
-                                />
-                            </div>
+                            <Input
+                                id='password'
+                                placeholder='password'
+                                type='password'
+                                value={passwordInput}
+                                required
+                                ref={passwordRef}
+                                className='space-y-1.5'
+                                onInput={(e) => setPasswordInput(e.currentTarget.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && buttonRef.current?.click()}
+                            />
 
                             {standardError && (
                                 <p className='text-destructive text-sm'>{standardError}</p>
                             )}
 
-                            <Button ref={buttonRef} type='submit' className='w-full cursor-pointer'>log in</Button>
+                            <Button ref={buttonRef} type='submit' variant='outline' className='w-full cursor-pointer'>log in</Button>
                         </form>
 
                         <div className='relative flex items-center gap-3'>

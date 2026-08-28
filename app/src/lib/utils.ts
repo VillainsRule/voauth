@@ -29,3 +29,9 @@ export const getRelativeTime = (timestamp: number): string => {
 
     return 'just now';
 }
+
+export const cleanLink = (url: string) => {
+    url = url.replaceAll('https://', '').replaceAll('http://', '');
+    if (url.endsWith('/')) url = url.slice(0, -1);
+    return url;
+}

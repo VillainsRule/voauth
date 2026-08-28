@@ -3,10 +3,12 @@ import { useParams } from 'wouter';
 import { navigate } from 'wouter/use-browser-location';
 
 import { Button } from '@/components/ui/button.tsx';
-import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
+import { Card, CardContent } from '@/components/ui/card.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx';
+
+import UserHeader from '../../UserHeader';
 
 import { Link, Plus, X } from 'lucide-react';
 
@@ -42,19 +44,7 @@ export default function App() {
     return (
         <div className='flex items-center justify-center h-screen bg-muted/30'>
             <Card className='w-sm overflow-hidden'>
-                <CardHeader className='pb-px'>
-                    <div className='flex items-start justify-between'>
-                        <div>
-                            <p className='text-base font-semibold tracking-tight'>{app.name || 'loading'}</p>
-                            <p className='text-xs text-muted-foreground mt-0.5'>@{window.props.user.username}</p>
-                        </div>
-
-                        <Button variant='ghost' size='sm' className='text-xs h-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10'
-                            onClick={() => api.v1.apps.delete.post({ id: app.id }).then(() => navigate('/home/apps'))}>
-                            delete
-                        </Button>
-                    </div>
-                </CardHeader>
+                <UserHeader />
 
                 <Separator />
 

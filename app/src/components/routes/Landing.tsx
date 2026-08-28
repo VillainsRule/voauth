@@ -18,16 +18,14 @@ export default function Landing() {
             />
 
             <div className='relative flex flex-col items-center gap-1'>
-                <h1 className='text-5xl font-bold tracking-tight'>voauth</h1>
-                <h2 className='text-base text-muted-foreground font-medium text-center'>the unified auth system for (most) of my projects</h2>
+                <h1 className='text-7xl font-bold tracking-tighter'>voauth</h1>
+                <h2 className='text-lg text-muted-foreground font-medium text-center max-w-xs'>a unified auth system.</h2>
             </div>
 
-            {window.props.user ? <div className='relative flex gap-2 mt-2'>
-                <Button variant='outline' onClick={() => navigate('/home')}>open dashboard</Button>
-            </div> : <div className='relative flex gap-2 mt-2'>
-                <Button variant='outline' onClick={() => navigate('/auth/login')}>login</Button>
-                <Button onClick={() => navigate('/auth/join')}>create account</Button>
-            </div>}
+            <div className='relative flex gap-3'>
+                <Button variant='outline' size='lg' onClick={() => navigate('/auth/login')}>login</Button>
+                <Button size='lg' onClick={() => navigate('/auth/join')}>create account</Button>
+            </div>
         </div>
     )
 }
