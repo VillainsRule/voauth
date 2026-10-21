@@ -9,7 +9,7 @@ import type { DBPasskey } from '../../../types';
 const home = new Elysia({ name: 'home' })
     .guard({ detail: { hide: true } })
 
-    .get('/api/v1/home', async ({ cookie: { session } }) => {
+    .get('/api/v2/home', async ({ cookie: { session } }) => {
         const user = userDB.getLink('sessions', session.value);
         if (!user) return status(401, { error: 'not logged in' });
 
@@ -22,13 +22,9 @@ const home = new Elysia({ name: 'home' })
             }
         });
 
-        const connected = user.connectedIds.map(id => {
-            const app = appDB.get(id);
-            if (!app) return null;
-            return { id: app.id, name: app.name, url: app.url };
-        }).filter((a): a is { id: string, name: string, url: string } => a !== null);
+        const apps = appDB.getLinks('ownerId', user.id).map(a => ({ id: a.id, name: a.name, url: a.url }));
 
-        return { connected, passkeys };
+        return { apps, passkeys };
     }, { cookie: t.Cookie({ session: t.String() }) })
 
     .post('/api/auth/passkeys/delete', async ({ body, cookie: { session } }) => {

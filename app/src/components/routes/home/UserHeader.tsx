@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { navigate } from 'wouter/use-browser-location';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CardHeader } from '@/components/ui/card';
 
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, LogOut } from 'lucide-react';
 
 import api from '@/lib/eden';
 
@@ -13,9 +14,10 @@ export default function UserHeader() {
 
     return (
         <CardHeader className='pb-px'>
-            <div className='flex items-start justify-between'>
+            <div className='flex items-center justify-between'>
                 <div>
-                    <p className='text-lg font-semibold tracking-tight'>voauth</p>
+                    <p className='text-lg font-semibold drop-shadow-sm cursor-pointer hover:underline' onClick={() => navigate('/home')}>voauth</p>
+
                     <p className='text-sm text-muted-foreground'>
                         @{window.props.user.username}
 
@@ -29,10 +31,13 @@ export default function UserHeader() {
                     </p>
                 </div>
 
-                <Button variant='destructive' size='sm' className='text-xs h-7'
-                    onClick={() => api.auth.logout.post().then(() => location.href = '/auth/login')}>
-                    logout
-                </Button>
+                <div className='flex flex-col items-center gap-1'>
+                    <Button variant='ghost' size='sm' className='h-8 gap-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive'
+                        onClick={() => api.auth.logout.post().then(() => location.href = '/auth/login')}>
+                        <LogOut className='size-3.5' />
+                        logout
+                    </Button>
+                </div>
             </div>
         </CardHeader>
     )

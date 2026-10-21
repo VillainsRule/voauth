@@ -29,6 +29,7 @@ const passkeys = new Elysia({ name: 'passkeys' })
         const user = userDB.getLink('sessions', session.value);
         if (!user) return status(401, { error: 'not logged in' });
 
+        if (body.name.length < 1) return status(400, { error: 'name too short' });
         if (body.name.length > 24) return status(413, { error: 'name too long' });
 
         if (currentRegistrations[user.id] && currentRegistrations[user.id].expiry > Date.now())

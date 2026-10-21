@@ -13,6 +13,8 @@ interface IInput {
     maxLength?: number;
     minLength?: number;
     textarea?: boolean;
+    password?: boolean;
+    validate?: (value: string) => boolean;
 }
 
 interface DialogState {
@@ -178,6 +180,11 @@ export function ShaddProvider() {
 
     const handleConfirm = useCallback(() => {
         if (state.type === 'prompt') {
+            if (state.inputs.some((input, idx) => input.validate?.(inputValues[idx] ?? '') === false)) {
+                shadd.setError('invalid input');
+                return;
+            }
+
             const value = state.inputs.length === 1 ? inputValues[0] : inputValues;
             if (Array.isArray(value)) (state.onConfirm as ((...args: string[]) => void) | null)?.(...value);
             else (state.onConfirm as ((value: string) => void) | null)?.(value);
@@ -229,6 +236,8 @@ export function ShaddProvider() {
                             })}
                             onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
                             autoFocus={idx === 0}
+                            type={input.password ? 'password' : 'text'}
+                            aria-invalid={input.validate?.(inputValues[idx] ?? '') === false}
                         />))}
 
                         {state.type === 'copy' && (<Input

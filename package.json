@@ -1,5 +1,6 @@
 {
     "name": "voauth",
+    "type": "module",
     "scripts": {
         "apidev": "cd api && bun --watch src/main.ts",
         "appdev": "cd app && bunx --bun vite build --watch",

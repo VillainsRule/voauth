@@ -17,13 +17,11 @@ const apps = new Elysia()
         return status(401, { error: 'not logged in' });
     })
 
-    .get('/api/v1/apps', ({ user }) => {
-        const apps = appDB.getLinks('ownerId', user.id);
-        return { apps: apps.map(a => ({ id: a.id, name: a.name, url: a.url })) };
-    })
-
     .post('/api/v1/apps', ({ body, user }) => {
+        if (body.name.length < 2) return status(400, { error: 'app name too short' });
         if (body.name.length > 24) return status(413, { error: 'app name too long' });
+
+        if (body.url.length < 12) return status(400, { error: 'app url too short' });
         if (body.url.length > 100) return status(413, { error: 'app url too long' });
 
         const id = crypto.randomBytes(8).toString('hex');
@@ -40,6 +38,28 @@ const apps = new Elysia()
 
         return { app: { id: app.id } };
     }, { body: t.Object({ name: t.String(), url: t.String() }) })
+
+    .patch('/api/v1/apps', ({ body, user }) => {
+        const app = appDB.get(body.id);
+        if (!app) return status(404, { error: 'app not found' });
+        if (app.ownerId !== user.id) return status(403, { error: 'you do not own this app' });
+
+        if (body.name.length > 24) return status(413, { error: 'app name too long' });
+        if (body.name.length < 2) return status(400, { error: 'app name too short' });
+
+        if (body.url.length > 100) return status(413, { error: 'app url too long' });
+        if (body.url.length < 12) return status(400, { error: 'app url too short' });
+
+        try {
+            new URL(body.url);
+        } catch {
+            return status(400, { error: 'invalid app url' });
+        }
+
+        appDB.update(body.id, { name: body.name, url: body.url });
+
+        return {};
+    }, { body: t.Object({ id: t.String(), name: t.String(), url: t.String() }) })
 
     .post('/api/v1/apps/delete', ({ body, user }) => {
         const app = appDB.get(body.id);

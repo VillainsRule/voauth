@@ -38,6 +38,7 @@ const auth = new Elysia({ name: 'auth' })
                 if (body.password.length < 4) return status(400, { error: 'password is too short' });
                 if (body.password.length > 24) return status(413, { error: 'password too long' });
 
+                if (body.username.length < 2) return status(400, { error: 'username too short' });
                 if (body.username.length > 16) return status(413, { error: 'username too long' });
 
                 const newSession = crypto.randomBytes(32).toString('hex');
@@ -66,6 +67,18 @@ const auth = new Elysia({ name: 'auth' })
             return status(502, {});
         }
     }, { body: t.Object({ act: t.Union([t.Literal('login'), t.Literal('join')]), username: t.String(), password: t.String() }) })
+
+    .post('/api/auth/password', async ({ body, cookie: { session } }) => {
+        const user = userDB.getLink('sessions', session.value);
+        if (!user) return status(401, { error: 'not logged in' });
+
+        if (body.password.length < 8) return status(400, { error: 'password is too short' });
+        if (body.password.length > 100) return status(413, { error: 'password too long' });
+
+        userDB.update(user.id, { password: Hasher.encode(body.password) });
+
+        return {};
+    }, { body: t.Object({ password: t.String() }), cookie: t.Cookie({ session: t.String() }) })
 
     .post('/api/auth/logout', async ({ cookie: { session } }) => {
         const user = userDB.getLink('sessions', session.value);

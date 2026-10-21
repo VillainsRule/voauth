@@ -10,9 +10,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import UserHeader from '../../UserHeader';
 
-import { Link, Plus, X } from 'lucide-react';
+import { Link, Pencil, Plus, Trash, X } from 'lucide-react';
 
 import api from '@/lib/eden.ts';
+import { shadd } from '@/lib/shadd.tsx';
 
 import type { DBApp } from '../../../../../../../types/index';
 
@@ -43,12 +44,66 @@ export default function App() {
 
     return (
         <div className='flex items-center justify-center h-screen bg-muted/30'>
-            <Card className='w-sm overflow-hidden'>
+            <Card className='w-sm overflow-hidden gap-2.5'>
                 <UserHeader />
+                <Separator />
+
+                <CardContent className='flex justify-between items-center py-0.5'>
+                    <div>
+                        <p className='font-semibold text-base'>{app.name}</p>
+                        <p className='text-sm text-muted-foreground'>{app.url.replace(/http(s?):\/\//, '')}</p>
+                    </div>
+
+                    <div className='flex items-center gap-1'>
+                        <Button variant='ghost' className='h-8 gap-1.5 text-xs text-muted-foreground' onClick={() => shadd.prompt(
+                            'edit app information',
+                            'you may not be able to change this in the future',
+                            [
+                                { placeholder: 'name', defaultValue: app.name, minLength: 2, maxLength: 24 },
+                                {
+                                    placeholder: 'url',
+                                    minLength: 12,
+                                    maxLength: 100,
+                                    defaultValue: app.url,
+                                    validate: (val) => {
+                                        try {
+                                            new URL(val);
+                                            return true;
+                                        } catch {
+                                            return false;
+                                        }
+                                    }
+                                }
+                            ],
+                            (name: string, url: string) => api.v1.apps.patch({ id: app.id, name, url }).then((res) => {
+                                if (res.data) (fetchApp(), shadd.close());
+                                else alert('failed to update app :(');
+                            })
+                        )}>
+                            <Pencil className='size-3.5' />
+                        </Button>
+
+                        <Button variant='ghost' className='h-8 gap-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive' onClick={() => shadd.confirm(
+                            `delete "${app.name}"`,
+                            'this action cannot be undone...are you sure you want to delete this app?',
+                            () => {
+                                if (!app.id) return;
+
+                                api.v1.apps.delete.post({ id: app.id }).then((res) => {
+                                    if (res.data) (navigate('/home'), shadd.close());
+                                    else alert('failed to delete app :(');
+                                });
+                            }
+                        )}>
+                            <Trash className='size-3.5' />
+                        </Button>
+                    </div>
+                </CardContent>
 
                 <Separator />
 
                 <CardContent className='py-0.5'>
+
                     <p>
                         <span className='font-semibold'>client ID:</span>
 
@@ -146,8 +201,8 @@ export default function App() {
                 <Separator />
 
                 <CardContent>
-                    <Button variant='outline' className='w-full text-xs h-8 text-muted-foreground' onClick={() => navigate('/home/apps')}>
-                        back to apps
+                    <Button variant='outline' className='w-full text-xs h-8 text-muted-foreground mt-1.5' onClick={() => navigate('/home')}>
+                        go home
                     </Button>
                 </CardContent>
             </Card>
