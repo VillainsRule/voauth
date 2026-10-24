@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'wouter';
-import { navigate } from 'wouter/use-browser-location';
+import { useEffect, useState } from 'preact/hooks';
+import { useParams } from 'wouter-preact';
+import { navigate } from 'wouter-preact/use-browser-location';
 
 import { Button } from '@/components/ui/button.tsx';
 import { Card, CardContent } from '@/components/ui/card.tsx';
@@ -15,6 +15,7 @@ import { Link, Pencil, Trash, X } from 'lucide-react';
 import api from '@/lib/eden.ts';
 import { shadd } from '@/lib/shadd.tsx';
 
+import type { TargetedEvent } from 'preact';
 import type { DBApp } from '../../../../../../../types/index';
 
 export default function App() {
@@ -189,7 +190,7 @@ export default function App() {
                                     <Input
                                         value={uri}
                                         placeholder={isNew ? 'https://...' : undefined}
-                                        onChange={(e) => updateURI(i, e.target.value)}
+                                        onChange={(e: TargetedEvent<HTMLInputElement>) => updateURI(i, e.currentTarget.value)}
                                         onBlur={() => {
                                             if (!isNew && !uri.trim()) setEditedURIs(editedURIs.filter((_, j) => j !== i));
                                         }}

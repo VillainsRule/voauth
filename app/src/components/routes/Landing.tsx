@@ -1,4 +1,4 @@
-import { useLocation } from 'wouter';
+import { useLocation } from 'wouter-preact';
 
 import { Button } from '../ui/button.tsx';
 

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { navigate } from 'wouter/use-browser-location';
+import { useState } from 'preact/hooks';
+import { navigate } from 'wouter-preact/use-browser-location';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

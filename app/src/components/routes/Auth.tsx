@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'wouter'
+import { useEffect, useRef, useState } from 'preact/hooks'
+import { useLocation } from 'wouter-preact'
 
 import { startAuthentication } from '@simplewebauthn/browser'
 
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 
 import api, { errorFrom } from '@/lib/eden'
+
+import type { TargetedEvent, TargetedKeyboardEvent } from 'preact'
 
 const searchParams = new URLSearchParams(window.location.search);
 
@@ -85,8 +87,8 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                                 required
                                 autoFocus
                                 className='space-y-1.5'
-                                onInput={(e) => setUsernameInput(e.currentTarget.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && passwordRef.current?.focus()}
+                                onInput={(e: TargetedEvent<HTMLInputElement>) => setUsernameInput(e.currentTarget.value)}
+                                onKeyDown={(e: TargetedKeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && passwordRef.current?.focus()}
                             />
 
                             <Input
@@ -97,8 +99,8 @@ export default function Auth({ act }: { act: 'login' | 'join' }) {
                                 required
                                 ref={passwordRef}
                                 className='space-y-1.5'
-                                onInput={(e) => setPasswordInput(e.currentTarget.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && buttonRef.current?.click()}
+                                onInput={(e: TargetedEvent<HTMLInputElement>) => setPasswordInput(e.currentTarget.value)}
+                                onKeyDown={(e: TargetedKeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && buttonRef.current?.click()}
                             />
 
                             {standardError && (

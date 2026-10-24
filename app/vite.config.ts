@@ -9,7 +9,10 @@ export default defineConfig({
 
     resolve: {
         alias: {
-            '@': '/src'
+            '@': '/src',
+
+            'react': 'preact/compat',
+            'react-dom': 'preact/compat'
         }
     },
 

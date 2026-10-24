@@ -1,9 +1,11 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'preact/hooks';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+
+import type { RefObject } from 'preact';
 
 type DialogType = 'alert' | 'confirm' | 'prompt' | 'copy';
 
@@ -200,7 +202,7 @@ export function ShaddProvider() {
     const hasInput = state.type === 'prompt' || state.type === 'copy';
 
     return (
-        <Dialog open={state.open} onOpenChange={(open) => !open && handleCancel()}>
+        <Dialog open={state.open} onOpenChange={(open: boolean) => !open && handleCancel()}>
             <DialogContent className='sm:max-w-lg gap-2'>
                 <DialogHeader>
                     <DialogTitle>{state.title}</DialogTitle>
@@ -210,7 +212,7 @@ export function ShaddProvider() {
                 {hasInput && (
                     <div className='flex flex-col py-2 gap-2'>
                         {state.type === 'prompt' && state.inputs.map((input, idx) => input.textarea ? (<Textarea
-                            ref={idx === 0 ? (inputRef as React.RefObject<HTMLTextAreaElement>) : undefined}
+                            ref={idx === 0 ? (inputRef as RefObject<HTMLTextAreaElement>) : undefined}
                             key={idx}
                             placeholder={input.placeholder}
                             minLength={input.minLength}
@@ -218,12 +220,13 @@ export function ShaddProvider() {
                             value={inputValues[idx] ?? ''}
                             onChange={(e) => setInputValues((prev) => {
                                 const updated = [...prev];
-                                updated[idx] = e.target.value;
+                                updated[idx] = e.currentTarget.value;
                                 return updated;
                             })}
                             autoFocus={idx === 0}
+                        // @ts-expect-error im not fixing this mess
                         />) : (<Input
-                            ref={idx === 0 ? (inputRef as React.RefObject<HTMLInputElement>) : undefined}
+                            ref={idx === 0 ? (inputRef as RefObject<HTMLInputElement>) : undefined}
                             key={idx}
                             placeholder={input.placeholder}
                             minLength={input.minLength}
@@ -231,7 +234,7 @@ export function ShaddProvider() {
                             value={inputValues[idx] ?? ''}
                             onChange={(e) => setInputValues((prev) => {
                                 const updated = [...prev];
-                                updated[idx] = e.target.value;
+                                updated[idx] = e.currentTarget.value;
                                 return updated;
                             })}
                             onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
@@ -241,7 +244,7 @@ export function ShaddProvider() {
                         />))}
 
                         {state.type === 'copy' && (<Input
-                            ref={inputRef as React.RefObject<HTMLInputElement>}
+                            ref={inputRef as RefObject<HTMLInputElement>}
                             readOnly
                             value={state.copyValue}
                             onFocus={(e) => e.currentTarget.select()}

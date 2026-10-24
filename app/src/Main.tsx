@@ -1,20 +1,21 @@
-import { createRoot } from 'react-dom/client'
-import { Route, Switch } from 'wouter'
+import { render } from 'preact'
+import { lazy } from 'preact-iso'
+import { Route, Switch } from 'wouter-preact'
 
 import { ShaddProvider } from './lib/shadd.tsx'
 import { TooltipProvider } from './components/ui/tooltip.tsx'
-
-import Landing from './components/routes/Landing.tsx'
-import Auth from './components/routes/Auth.tsx'
-
-import Home from './components/routes/home/Home.tsx'
-import App from './components/routes/home/apps/[id]/App.tsx'
 
 import V1 from './components/routes/oauth/V1.tsx'
 
 import './global.css'
 
-createRoot(document.getElementById('root')!).render(<TooltipProvider>
+const Landing = lazy(() => import('./components/routes/Landing.tsx'))
+const Auth = lazy(() => import('./components/routes/Auth.tsx'))
+
+const Home = lazy(() => import('./components/routes/home/Home.tsx'))
+const App = lazy(() => import('./components/routes/home/apps/[id]/App.tsx'))
+
+render(<TooltipProvider>
     <Switch>
         <Route path='/' component={Landing} />
 
@@ -35,4 +36,4 @@ createRoot(document.getElementById('root')!).render(<TooltipProvider>
     </Switch>
 
     <ShaddProvider />
-</TooltipProvider>)
+</TooltipProvider>, document.getElementById('root')!);
