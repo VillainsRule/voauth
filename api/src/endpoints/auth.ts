@@ -64,7 +64,7 @@ const auth = new Elysia({ name: 'auth' })
             }
         } catch (error) {
             console.error(error);
-            return status(502, {});
+            return status(500, {});
         }
     }, { body: t.Object({ act: t.Union([t.Literal('login'), t.Literal('join')]), username: t.String(), password: t.String() }) })
 
