@@ -10,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import UserHeader from '../../UserHeader';
 
-import { Link, Pencil, Plus, Trash, X } from 'lucide-react';
+import { Link, Pencil, Trash, X } from 'lucide-react';
 
 import api from '@/lib/eden.ts';
 import { shadd } from '@/lib/shadd.tsx';
@@ -23,10 +23,10 @@ export default function App() {
 
     const [app, setApp] = useState<DBApp>({ id: params.id, name: '', url: '', redirectURIs: [], ownerId: 0, secret: '' });
 
-    const fetchApp = () => api.v1.apps.info.post({ id: params.id! }).then((res) => {
+    const fetchApp = (syncURIs = true) => api.v1.apps.info.post({ id: params.id! }).then((res) => {
         if (res.data) {
             setApp(res.data.app);
-            setEditedURIs(res.data.app.redirectURIs);
+            if (syncURIs) setEditedURIs(res.data.app.redirectURIs);
         } else alert('failed to fetch app :(');
     });
 
@@ -38,7 +38,38 @@ export default function App() {
     const [copied, setCopied] = useState<string>('');
 
     const [editedURIs, setEditedURIs] = useState<string[]>(app.redirectURIs);
-    const [newURI, setNewURI] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    const cleanedURIs = editedURIs.map((uri) => uri.trim()).filter(Boolean);
+
+    const dirty = cleanedURIs.length !== app.redirectURIs.length
+        || cleanedURIs.some((uri, i) => uri !== app.redirectURIs[i]);
+
+    const updateURI = (i: number, value: string) => {
+        const updated = [...editedURIs];
+        updated[i] = value;
+        setEditedURIs(updated);
+    };
+
+    const revert = () => setEditedURIs(app.redirectURIs);
+
+    const save = () => {
+        setSaving(true);
+        api.v1.apps.redirectURIs.post({ id: app.id, uris: cleanedURIs }).then((res) => {
+            if (res.data) return fetchApp();
+
+            alert('failed to save redirect URIs :(');
+        }).finally(() => setSaving(false));
+    };
+
+    useEffect(() => {
+        const unloadListener = (e: BeforeUnloadEvent) => {
+            if (dirty) e.preventDefault();
+        };
+
+        window.addEventListener('beforeunload', unloadListener);
+        return () => window.removeEventListener('beforeunload', unloadListener);
+    }, [dirty]);
 
     if (!window.props.user) return <>redirecting...</>;
 
@@ -76,7 +107,7 @@ export default function App() {
                                 }
                             ],
                             (name: string, url: string) => api.v1.apps.patch({ id: app.id, name, url }).then((res) => {
-                                if (res.data) (fetchApp(), shadd.close());
+                                if (res.data) (fetchApp(false), shadd.close());
                                 else alert('failed to update app :(');
                             })
                         )}>
@@ -146,55 +177,31 @@ export default function App() {
                 <CardContent className='space-y-1'>
                     <p className='font-semibold'>redirect URIs:</p>
                     <div className='space-y-2 mt-2'>
-                        {editedURIs.map((uri, i) => (
-                            <div key={i} className='flex items-center gap-2'>
-                                <Link className='w-4 h-4 text-muted-foreground cursor-pointer' onClick={() => navigator.clipboard.writeText(`${location.origin}/oauth/v1?client_id=${app.id}&redirect_uri=${encodeURIComponent(uri)}`)} />
+                        {[...editedURIs, ''].map((uri, i) => {
+                            const isNew = i === editedURIs.length;
 
-                                <Input
-                                    value={uri}
-                                    onChange={(e) => {
-                                        const updated = [...editedURIs];
-                                        updated[i] = e.target.value;
-                                        setEditedURIs(updated);
+                            return (
+                                <div key={i} className='flex items-center gap-2'>
+                                    {isNew
+                                        ? <span className='w-4 h-4' />
+                                        : <Link className='w-4 h-4 text-muted-foreground cursor-pointer' onClick={() => navigator.clipboard.writeText(`${location.origin}/oauth/v1?client_id=${app.id}&redirect_uri=${encodeURIComponent(uri)}`)} />}
 
-                                        api.v1.apps.redirectURIs.post({ id: app.id, uris: updated }).then((res) => {
-                                            if (!res.data) alert('failed to fetch app :(');
-                                        });
-                                    }}
-                                    className='flex items-center justify-between px-3 py-2 rounded-md bg-secondary/60 group cursor-pointer max-w-[calc(100%-10px)]'
-                                />
+                                    <Input
+                                        value={uri}
+                                        placeholder={isNew ? 'https://...' : undefined}
+                                        onChange={(e) => updateURI(i, e.target.value)}
+                                        onBlur={() => {
+                                            if (!isNew && !uri.trim()) setEditedURIs(editedURIs.filter((_, j) => j !== i));
+                                        }}
+                                        className='flex items-center justify-between px-3 py-2 rounded-md bg-secondary/60 group cursor-pointer max-w-[calc(100%-10px)]'
+                                    />
 
-                                <X className='w-4 h-4 text-muted-foreground cursor-pointer' onClick={() => {
-                                    const newURIs = editedURIs.filter((_, j) => j !== i);
-                                    api.v1.apps.redirectURIs.post({ id: app.id, uris: newURIs }).then((res) => {
-                                        if (res.data) fetchApp();
-                                        else alert('failed to fetch app :(');
-                                    });
-                                }} />
-                            </div>
-                        ))}
-
-                        <div className='flex items-center gap-2'>
-                            <span className='w-4 h-4' />
-
-                            <Input
-                                value={newURI}
-                                onChange={(e) => setNewURI(e.target.value)}
-                                placeholder='https://...'
-                                className='flex items-center justify-between px-3 py-2 rounded-md bg-secondary/60 group cursor-pointer max-w-[calc(100%-10px)]'
-                            />
-
-                            <Plus className='w-4 h-4 text-muted-foreground cursor-pointer' onClick={() => {
-                                if (!newURI) return;
-                                const updated = [...editedURIs, newURI];
-                                api.v1.apps.redirectURIs.post({ id: app.id, uris: updated }).then((res) => {
-                                    if (res.data) {
-                                        setNewURI('');
-                                        fetchApp();
-                                    } else alert('failed to fetch app :(');
-                                });
-                            }} />
-                        </div>
+                                    {isNew
+                                        ? <span className='w-4 h-4' />
+                                        : <X className='w-4 h-4 text-muted-foreground cursor-pointer' onClick={() => setEditedURIs(editedURIs.filter((_, j) => j !== i))} />}
+                                </div>
+                            );
+                        })}
                     </div>
                 </CardContent>
 
@@ -206,6 +213,23 @@ export default function App() {
                     </Button>
                 </CardContent>
             </Card>
+
+            <div
+                aria-hidden={!dirty}
+                className={`fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-lg border bg-background py-2 pl-4 pr-2 shadow-lg transition-all duration-300 ease-out ${dirty ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-24 opacity-0'}`}
+            >
+                <span className='text-sm font-medium whitespace-nowrap'>unsaved changes</span>
+
+                <div className='flex items-center gap-1'>
+                    <Button variant='ghost' className='h-8 text-xs text-muted-foreground' disabled={!dirty || saving} onClick={revert}>
+                        revert
+                    </Button>
+
+                    <Button className='h-8 text-xs' disabled={!dirty || saving} onClick={save}>
+                        {saving ? 'saving...' : 'save'}
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 }
