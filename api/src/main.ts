@@ -38,6 +38,7 @@ const app = new Elysia({ serve: { maxRequestBodySize: 1024 * 1024 * 0.05 } })
         { headers: { 'cache-control': 'public, max-age=31536000, immutable, no-transform', 'content-type': 'image/x-icon' } }
     ), { detail: { hide: true } })
     .get('/robots.txt', () => new Response('User-agent: *\nDisallow: /', { headers: { 'Content-Type': 'text/plain' } }), { detail: { hide: true } })
+    .get('/api/status', () => new Response('OK'), { detail: { hide: true } })
     .use(files)
     .use(apps)
     .use(auth)
